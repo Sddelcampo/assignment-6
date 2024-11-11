@@ -11,12 +11,10 @@ const db = new sqlite3.Database('./jokebook.db'); // SQLite database file
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Set up the views directory
-
-// Middleware to parse JSON bodies
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mock data (do not change this)
+//implementation of example categegories and jokes
 let categories = ['funnyJoke', 'lameJoke'];
 let funnyJokeList = [
     { 'setup': 'Why did the student eat his homework?', 'delivery': 'Because the teacher told him it was a piece of cake!' },
@@ -97,7 +95,7 @@ app.get('/jokebook/categories', (req, res) => {
     });
 });
 
-// GET endpoint for jokes in a category
+/// GET endpoint for jokes in a category
 app.get('/jokebook/joke/:category', (req, res) => {
     const category = req.params.category;
     const limit = req.query.limit || 10; // Default limit to 10 if not specified
@@ -116,10 +114,20 @@ app.get('/jokebook/joke/:category', (req, res) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            res.render('category_jokes', { category: category, jokes: jokes });
+
+            // If no jokes are found, pass a message
+            const message = jokes.length === 0 ? 'No jokes are available, try and make some!' : null;
+
+            // Render the view with the jokes (or message)
+            res.render('category_jokes', { 
+                category: category,
+                jokes: jokes.length > 0 ? jokes : null, // Pass jokes if available, else null
+                message: message  // Always pass the message variable
+            });
         });
     });
 });
+
 
 // POST endpoint to add a new joke
 app.post('/jokebook/joke/new', (req, res) => {
@@ -153,30 +161,48 @@ app.post('/jokebook/joke/new', (req, res) => {
                         return res.status(500).json({ error: err.message });
                     }
 
-                    // Return the updated list of jokes for the new category
+                    // Fetch jokes for the newly created category
                     db.all('SELECT setup, delivery FROM jokes WHERE category_id = ?', [newCategoryId], (err, jokes) => {
                         if (err) {
                             return res.status(500).json({ error: err.message });
                         }
-                        res.render('category_jokes', { category: category, jokes: jokes });
+
+                        // If no jokes exist, set a message
+                        const message = jokes.length === 0 ? 'No jokes are available, try and make some!' : null;
+
+                        // Render the category jokes view with the updated joke list
+                        res.render('category_jokes', { 
+                            category: category, 
+                            jokes: jokes.length > 0 ? jokes : null, 
+                            message: message  // Ensure the message is passed here
+                        });
                     });
                 });
             });
         } else {
             // If the category exists, just insert the joke
             const categoryId = categoryRow.id;
-            
+
             db.run('INSERT INTO jokes (category_id, setup, delivery) VALUES (?, ?, ?)', [categoryId, setup, delivery], function(err) {
                 if (err) {
                     return res.status(500).json({ error: err.message });
                 }
 
-                // Return the updated list of jokes for the category
+                // Fetch jokes for the given category
                 db.all('SELECT setup, delivery FROM jokes WHERE category_id = ?', [categoryId], (err, jokes) => {
                     if (err) {
                         return res.status(500).json({ error: err.message });
                     }
-                    res.render('category_jokes', { category: categoryRow.name, jokes: jokes });
+
+                    // If no jokes exist, set a message
+                    const message = jokes.length === 0 ? 'No jokes are available, try and make some!' : null;
+
+                    // Render the category jokes view with the updated joke list
+                    res.render('category_jokes', { 
+                        category: categoryRow.name, 
+                        jokes: jokes.length > 0 ? jokes : null, 
+                        message: message  // Ensure the message is passed here
+                    });
                 });
             });
         }

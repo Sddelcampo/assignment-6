@@ -7,26 +7,27 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <h1>Jokes in <%= category %> Category</h1>
-    <ul>
-        <% jokes.forEach(function(joke) { %>
-            <li><strong>Setup:</strong> <%= joke.setup %> <br> <strong>Delivery:</strong> <%= joke.delivery %></li>
-        <% }); %>
-    </ul>
-    <a href="/jokebook/categories">Back to Categories</a>
+    <div class="container">
+        <h1>Jokes for <%= category %></h1>
 
-    <h2>Add a New Joke</h2>
-    <form action="/jokebook/joke/new" method="POST">
-        <label for="category">Category:</label>
-        <input type="text" name="category" id="category" required><br>
+        <% if (message) { %>
+            <p class="message"><%= message %></p>  <!-- Display the message if there are no jokes -->
+        <% } else { %>
+            <% if (jokes && jokes.length > 0) { %>
+                <ul>
+                    <% jokes.forEach(function(joke) { %>
+                        <li>
+                            <p><strong>Setup:</strong> <%= joke.setup %></p>
+                            <p><strong>Delivery:</strong> <%= joke.delivery %></p>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No jokes found for this category.</p>
+            <% } %>
+        <% } %>
 
-        <label for="setup">Setup:</label>
-        <input type="text" name="setup" id="setup" required><br>
-
-        <label for="delivery">Delivery:</label>
-        <input type="text" name="delivery" id="delivery" required><br>
-
-        <button type="submit">Submit Joke</button>
-    </form>
+        <a href="/jokebook/categories">Back to Categories</a>
+    </div>
 </body>
 </html>
