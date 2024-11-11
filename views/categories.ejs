@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joke Categories</title>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>Joke Categories</h1>
+    
+    <!-- Search form to input category name -->
+    <form action="/jokebook/joke" method="GET" id="searchForm">
+        <label for="search">Search for a Category:</label>
+        <input type="text" name="category" id="search" placeholder="Enter category name" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- List all categories with links -->
+    <ul>
+        <% categories.forEach(function(category) { %>
+            <li>
+                <a href="/jokebook/joke/<%= category %>"><%= category %></a>
+            </li>
+        <% }); %>
+    </ul>
+
+    <h2>Add a New Joke</h2>
+    <form action="/jokebook/joke/new" method="POST">
+        <label for="category">Category:</label>
+        <input type="text" name="category" id="category" placeholder="Enter category name" required><br>
+    
+        <label for="setup">Setup:</label>
+        <input type="text" name="setup" id="setup" required><br>
+    
+        <label for="delivery">Delivery:</label>
+        <input type="text" name="delivery" id="delivery" required><br>
+    
+        <button type="submit">Submit Joke</button>
+    </form>
+    
+
+    <a href="/">Back to Home</a>
+
+    <script>
+        // JavaScript to update the form action URL dynamically based on input
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('search');
+
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            const category = searchInput.value.trim();
+            if (category) {
+                // Redirect to the category jokes page
+                window.location.href = `/jokebook/joke/${category}`;
+            }
+        });
+    </script>
+</body>
+</html>
